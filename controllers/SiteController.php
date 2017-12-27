@@ -10,6 +10,8 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 
+use app\models\RegisterForm;
+
 class SiteController extends Controller
 {
     /**
@@ -79,7 +81,30 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
+
         return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Displays registration page.
+     *
+     * @return string
+     */
+    public function actionRegister()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new RegisterForm();
+        if ($model->load(Yii::$app->request->post())) {
+            var_dump($model);
+            exit;
+        }
+
+        return $this->render('register', [
             'model' => $model,
         ]);
     }
