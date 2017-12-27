@@ -53,7 +53,8 @@ AppAsset::register($this);
                 )
                 . Html::endForm()
                 . '</li>'
-            )
+            ),
+            ['label' => 'Test', 'url' => ['/site/test']],
         ],
     ]);
 
@@ -66,14 +67,12 @@ AppAsset::register($this);
         ]) ?>
 
         <?php
+        /*
             $tab = [1,5,"huehue",7,7,8,9];
             foreach($tab as $key => $value){
                 echo "key: " . $key . " -  value: " . $value ." \n";
             }
-        ?>
-
-        <?=
-            $tab[2];
+        */
         ?>
 
         <?= Alert::widget() ?>
