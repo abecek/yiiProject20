@@ -44,12 +44,8 @@ class RegisterForm extends Model
      */
     public function validatePassword($attribute, $params)
     {
-        if (!$this->hasErrors()) {
-            $user = $this->getUser();
-
-            if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
-            }
+        if (!is_string($this->password) || strlen($this->password) < 6) {
+            $this->addError($attribute, 'Incorrect password. Must be at least 6 letters length.');
         }
     }
 

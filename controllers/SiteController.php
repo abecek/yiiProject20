@@ -99,9 +99,12 @@ class SiteController extends Controller
         }
 
         $model = new RegisterForm();
-        if ($model->load(Yii::$app->request->post())) {
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             var_dump($model);
-            exit;
+
+            Yii::$app->session->setFlash('success', 'Data is correct. We send email to you email address which contain next steps.');
+
+            $model = new RegisterForm();
         }
 
         return $this->render('register', [

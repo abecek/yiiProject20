@@ -51,6 +51,7 @@ $config = [
             'enableStrictParsing' => false,
             'rules' => [
                 'GET,POST <controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                //'<chatbox>/<action:\w+>' => '<controller>/<action>',
             ],
         ],
 

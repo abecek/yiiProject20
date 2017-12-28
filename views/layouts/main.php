@@ -48,6 +48,7 @@ AppAsset::register($this);
         $authItems[] = ['label' => 'Register', 'url' => ['/site/register']];
     }
     else{
+        $authItems[] = ['label' => 'Chatbox', 'url' => ['chatbox/']];
         $authItems[] = '<li>'
         . Html::beginForm(['/site/logout'], 'post')
         . Html::submitButton(
@@ -57,8 +58,6 @@ AppAsset::register($this);
         . Html::endForm()
         . '</li>';
     }
-
-    $authItems[] = ['label' => 'Test', 'url' => ['/site/test']];
 
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
