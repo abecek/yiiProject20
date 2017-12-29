@@ -13,10 +13,17 @@ use yii\base\Model;
  */
 class RegisterForm extends Model
 {
+
+    public $idUser;
     public $username;
-    public $email;
     public $password;
+    public $email;
     public $gender;
+
+    public $authKey;
+    public $accessToken;
+
+    public $roles;
     public $singature;
 
     private $_user = false;
@@ -50,7 +57,7 @@ class RegisterForm extends Model
     }
 
     public function register(){
-
+        return true;
     }
 
     /**
@@ -66,4 +73,5 @@ class RegisterForm extends Model
 
         return $this->_user;
     }
+
 }

@@ -2,74 +2,122 @@
 
 namespace app\models;
 
+use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
-use \yii\web\IdentityInterface;
+use yii\helpers\Security;
+use yii\web\IdentityInterface;
+
+/**
+ * This is the model class for table "tbl_user".
+ *
+ * @property integer $id_user
+ * @property string $username
+ * @property string $password_hash
+ * @property string $gender
+ * @property string $auth_key
+ * @property string $email
+ * @property datetime $date_register
+ * @property string $signature
+ * @property integer $is_active
+ */
 
 class User extends ActiveRecord implements IdentityInterface
 {
-    public $id;
-    public $username;
+
     public $password;
-    public $authKey;
-    public $accessToken;
-    public $roles;
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-            'roles' => ['admin'],
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
+    //
+    private $_user = false;
+    public $rememberMe = true;
 
+
+    public static function tableName(){
+        return 'users';
+    }
+
+    public function getPrimaryKey($asArray = false)
+    {
+        return 'id_user';
+    }
+
+    public function rules()
+    {
+        return [
+            [['username', 'password','email', 'gender'], 'required'],
+            // password is validated by validatePassword()
+            ['password', 'validatePassword'],
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'idUser' => 'Id',
+            'username' => 'Username',
+            'password' => 'Password',
+            'email' => 'Email',
+            'dateRegister' => 'Register date',
+            'signature' => 'Signature',
+            'isActive' => 'is_active',
+        ];
+    }
 
     /**
-     * @inheritdoc
+     * Logs in a user using the provided username and password.
+     * @return boolean whether the user is logged in successfully
      */
+    public function login() {
+        //if ($this->validate()) {
+            return \Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+        //} else {
+        //    return false;
+        //}
+    }
+
+    /**
+     * Finds user by [[username]]
+     *
+     * @return User|null
+     */
+    public function getUser() {
+        if ($this->_user === false) {
+            $this->_user = self::findByUsername($this->username);
+        }
+
+        return $this->_user;
+    }
+
+
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return self::findOne($id);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
     public static function findByUsername($username)
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
+        return self::findOne(['username' => $username]);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return self::findOne(['access_token' => $token]);
+        //throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+    }
+
+
+    public static function findByPasswordResetToken($token)
+    {
+        $expire = \Yii::$app->params['user.passwordResetTokenExpire'];
+        $parts = explode('_', $token);
+        $timestamp = (int) end($parts);
+        if ($timestamp + $expire < time()) {
+            // token expired
+            return null;
         }
 
-        return null;
+        return static::findOne([
+            'password_reset_token' => $token
+        ]);
     }
 
     /**
@@ -77,7 +125,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getId()
     {
-        return $this->id;
+        return $this->id_user;
     }
 
     /**
@@ -85,7 +133,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        return $this->auth_key;
     }
 
     /**
@@ -93,22 +141,77 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        return $this->authKey === $authKey;
+        return $this->auth_key === $authKey;
     }
 
     /**
      * Validates password
      *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
+     * @param  string  $password password to validate
+     * @return boolean if password provided is valid for current user
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+
+        if($this->password !== null){
+            return \Yii::$app->security->validatePassword($password, $this->password);
+        }
+        else{
+            var_dump(\Yii::$app->security->validatePassword($password, $this->password_hash));
+            exit;
+
+            return \Yii::$app->security->validatePassword($password, $this->password_hash);
+        }
+
     }
 
-    public static function tableName()
+    /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     */
+    public function setPassword($password)
     {
-        return '{{users}}';
+        $this->password_hash = \Yii::$app->security->generatePasswordHash($password);
     }
+
+    /**
+     * Generates "remember me" authentication key
+     */
+    public function generateAuthKey()
+    {
+        $this->auth_key = Security::generateRandomKey();
+    }
+
+    /**
+     * Generates new password reset token
+     */
+    public function generatePasswordResetToken()
+    {
+        $this->password_reset_token = Security::generateRandomKey() . '_' . time();
+    }
+
+    /**
+     * Removes password reset token
+     */
+    public function removePasswordResetToken()
+    {
+        $this->password_reset_token = null;
+    }
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->password_hash = \Yii::$app->security->generatePasswordHash($this->password);
+                $this->date_register = new \yii\db\Expression('NOW()');
+                $this->auth_key = \Yii::$app->security->generateRandomString();
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+
 }

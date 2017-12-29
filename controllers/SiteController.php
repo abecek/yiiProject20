@@ -11,6 +11,7 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 
 use app\models\RegisterForm;
+use app\models\User;
 
 class SiteController extends Controller
 {
@@ -77,9 +78,9 @@ class SiteController extends Controller
             return $this->goHome();
         }
 
-        $model = new LoginForm();
+        $model = new User();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->goHome();
         }
 
         return $this->render('login', [
@@ -98,13 +99,11 @@ class SiteController extends Controller
             return $this->goHome();
         }
 
-        $model = new RegisterForm();
+        $model = new User();
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            var_dump($model);
-
             Yii::$app->session->setFlash('success', 'Data is correct. We send email to you email address which contain next steps.');
-
-            $model = new RegisterForm();
+            $model->save();
+            return $this->redirect('login');
         }
 
         return $this->render('register', [

@@ -19,6 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 echo Yii::$app->session->getFlash('success');
             }
 
+            /*
             //TEST
             $data = Yii::$app->db->createCommand('Select count(id_user) liczba from users ')->queryOne();
             echo  "Liczba userow: " . $data['liczba'];
@@ -26,7 +27,8 @@ $this->params['breadcrumbs'][] = $this->title;
             use app\models\User;
             $usersAll = User::find()->indexBy('id_user')->all();
             echo "<br>Liczba2 userow: " . count($usersAll) . "<br>";
-            var_dump($usersAll[1]);
+            //var_dump($usersAll[1]);
+            */
     ?>
 
         <?php $form = ActiveForm::begin([
@@ -49,6 +51,14 @@ $this->params['breadcrumbs'][] = $this->title;
             'M' => 'Man',
             'K' => 'Woman',
         ])->label('Gender');
+        ?>
+
+        <?php
+            /*
+            echo $form->field($model,'signature')->textarea(
+                ['style' => 'max-width: 250px;']
+            )->label('Signature:');
+            */
         ?>
 
         <div class="form-group">

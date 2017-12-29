@@ -57,7 +57,6 @@ $this->title = 'Chatbox';
                         <button class="btn btn-primary btn-lg btn-block">
                             Send!
                         </button>
-                        <?= Html::submitButton('Submit', ['class' => 'btn btn-primary']) ?>
                     </form>
                 </div>
             </div>
