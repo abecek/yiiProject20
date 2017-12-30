@@ -8,9 +8,9 @@
 namespace app\controllers;
 
 use Yii;
+use app\components\AccessRule;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\Response;
 use yii\filters\VerbFilter;
 
 class ChatboxController extends Controller{
@@ -20,13 +20,33 @@ class ChatboxController extends Controller{
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
+                // We will override the default rule config with the new AccessRule class
+                'ruleConfig' => [
+                    'class' => AccessRule::className(),
+                ],
+                /*
+                'denyCallback' => function ($rule, $action) {
+                    throw new \Exception('You are not allowed to access this page.');
+                },
+                */
+                //'denyCallback' => null, //Dalej przekieruje na login page
+                'only' => ['logout', 'index', 'test'],
                 'rules' => [
+                    // Access to actions below only for authenticated - @
                     [
-                        'actions' => ['index'],
+                        'actions' => ['test'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+                    // Access to actions below for everyone
+                    [
+                        'actions' => ['index'],
+                        'allow' => true,
+                    ]
+                    // Access to rest actions DENIED or maybe not? todo: check latter
+                    // LINKS
+                    // https://yii2-framework.readthedocs.io/en/stable/guide/security-authorization/
+                    // http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#role-based-access-control-rbac
                 ],
             ],
             'verbs' => [
@@ -59,5 +79,9 @@ class ChatboxController extends Controller{
     public function actionIndex()
     {
         return $this->render('chatbox');
+    }
+
+    public function actionTest(){
+        return $this->render('testChatbox');
     }
 }

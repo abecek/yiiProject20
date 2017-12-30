@@ -123,5 +123,11 @@ ALTER TABLE `chatbox_messages`
 
 ALTER TABLE `bans`
 	ADD CONSTRAINT `id_message_fk1` FOREIGN KEY(`id_message`) REFERENCES `chatbox_messages`(`id_message`);
+	
+	
+/*
+	todo: Dodac ROLE!!!
+*/
+alter table `users` add column `rank` tinyint unsigned default 0;
 
 

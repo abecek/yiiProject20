@@ -2,15 +2,14 @@
 
 namespace app\controllers;
 
+use app\components\AccessRule;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
-use app\models\LoginForm;
 use app\models\ContactForm;
 
-use app\models\RegisterForm;
 use app\models\User;
 
 class SiteController extends Controller
@@ -23,13 +22,44 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
+                'only' => ['logout', 'login', 'register', 'about', 'contact'],
+
+                // We will override the default rule config with the new AccessRule class
+                'ruleConfig' => [
+                    'class' => AccessRule::className(),
+                ],
+
                 'rules' => [
+                    // Deny for guests access to logout action
                     [
                         'actions' => ['logout'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+                    // Deny for authenticated users access to actions below
+                    [
+                        'actions' => ['login', 'register'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['about'],
+                        'allow' => true,
+                        'roles' => [
+                            User::ROLE_USER_ACTIVATED,
+                        ],
+                    ],
+                    [
+                        'actions' => ['contact'],
+                        'allow' => true,
+                        'roles' => [
+                            User::ROLE_ADMIN,
+                        ],
+                    ],
+                    // REST IS ALLOWED
+                    // LINKS
+                    // https://yii2-framework.readthedocs.io/en/stable/guide/security-authorization/
+                    // http://www.yiiframework.com/doc-2.0/guide-security-authorization.html#role-based-access-control-rbac
                 ],
             ],
             'verbs' => [
@@ -103,6 +133,7 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             Yii::$app->session->setFlash('success', 'Data is correct. We send email to you email address which contain next steps.');
             $model->save();
+
             return $this->redirect('login');
         }
 

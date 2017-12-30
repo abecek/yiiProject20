@@ -8,57 +8,94 @@ use yii\helpers\Security;
 use yii\web\IdentityInterface;
 
 /**
- * This is the model class for table "tbl_user".
+ * This is the model class for table "users".
  *
- * @property integer $id_user
+ * @property string $id_user
  * @property string $username
+ * @property string $email
  * @property string $password_hash
  * @property string $gender
  * @property string $auth_key
- * @property string $email
- * @property datetime $date_register
+ * @property string $date_register
  * @property string $signature
  * @property integer $is_active
+ * @property integer $rank
+ *
+ * @property Bans[] $bans
+ * @property Bans[] $bans0
+ * @property ChatboxMessages[] $chatboxMessages
+ * @property Posts[] $posts
+ * @property Threads[] $threads
  */
-
 class User extends ActiveRecord implements IdentityInterface
 {
 
     public $password;
 
-    //
     private $_user = false;
     public $rememberMe = true;
+
+
+    const ROLE_USER = 0;
+    const ROLE_USER_ACTIVATED = 1;
+    //const ROLE_AUTHOR = 2;
+    // RBAC needed
+    const ROLE_MODERATOR = 3;
+    const ROLE_ADMIN = 4;
 
 
     public static function tableName(){
         return 'users';
     }
 
+
     public function getPrimaryKey($asArray = false)
     {
-        return 'id_user';
+        if($asArray){
+            return ['id_user' => $this->id_user];
+        }
+        return (string)$this->id_user;
     }
+
 
     public function rules()
     {
         return [
+            [['username', 'email', 'password', 'gender'], 'required'],
+            [['date_register'], 'safe'],
+            [['is_active', 'rank'], 'integer'],
+            [['username'], 'string', 'max' => 30],
+            [['email'], 'string', 'max' => 35],
+            [['password_hash', 'signature'], 'string', 'max' => 255],
+            [['gender'], 'string', 'max' => 1],
+            [['auth_key'], 'string', 'max' => 32],
+            [['username'], 'unique'],
+            [['email'], 'unique'],
+        ];
+
+        /*
+        return [
             [['username', 'password','email', 'gender'], 'required'],
             // password is validated by validatePassword()
-            ['password', 'validatePassword'],
+            //['password', 'validatePassword'],
         ];
+        */
+
     }
 
     public function attributeLabels()
     {
         return [
-            'idUser' => 'Id',
+            'id_user' => 'Id User',
             'username' => 'Username',
-            'password' => 'Password',
             'email' => 'Email',
-            'dateRegister' => 'Register date',
+            'password_hash' => 'Password Hash',
+            'gender' => 'Gender',
+            'auth_key' => 'Auth Key',
+            'date_register' => 'Date Register',
             'signature' => 'Signature',
-            'isActive' => 'is_active',
+            'is_active' => 'Is Active',
+            'rank' => 'Rank',
         ];
     }
 
@@ -213,5 +250,44 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBans()
+    {
+        return $this->hasMany(Bans::className(), ['id_giver' => 'id_user']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBans0()
+    {
+        return $this->hasMany(Bans::className(), ['id_user' => 'id_user']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getChatboxMessages()
+    {
+        return $this->hasMany(ChatboxMessages::className(), ['id_author' => 'id_user']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPosts()
+    {
+        return $this->hasMany(Posts::className(), ['id_author' => 'id_user']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getThreads()
+    {
+        return $this->hasMany(Threads::className(), ['id_author' => 'id_user']);
+    }
 
 }

@@ -23,6 +23,11 @@ $config = [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
         ],
+        'authManager' => [
+            'class' => 'yii\rbac\PhpManager',
+            'defaultRoles' => ['admin', 'moderator', 'author', 'userActivated', 'user'],
+            //'cache' => 'cache' //Only for db??
+        ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
