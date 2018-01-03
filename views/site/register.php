@@ -18,7 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
             if(Yii::$app->session->hasFlash('succcess')){
                 echo Yii::$app->session->getFlash('success');
             }
-
+                
             /*
             //TEST
             $data = Yii::$app->db->createCommand('Select count(id_user) liczba from users ')->queryOne();
@@ -48,9 +48,13 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= $form->field($model, 'password')->passwordInput() ?>
 
         <?= $form->field($model, 'gender')->radioList([
-            'M' => 'Man',
-            'K' => 'Woman',
-        ])->label('Gender');
+                'M' => 'Man',
+                'K' => 'Woman',
+            ])->label('Gender');
+        ?>
+    
+        <?=
+            $form->field($model, 'signature')->textarea()->label('Signature:');
         ?>
 
         <?php

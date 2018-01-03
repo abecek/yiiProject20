@@ -40,8 +40,8 @@ class Thread extends \yii\db\ActiveRecord
             [['count_displays', 'state', 'id_author', 'id_section'], 'integer'],
             [['date_begin', 'date_end'], 'safe'],
             [['title'], 'string', 'max' => 300],
-            [['id_author'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['id_author' => 'id_user']],
-            [['id_section'], 'exist', 'skipOnError' => true, 'targetClass' => Sections::className(), 'targetAttribute' => ['id_section' => 'id_section']],
+            [['id_author'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['id_author' => 'id_user']],
+            [['id_section'], 'exist', 'skipOnError' => true, 'targetClass' => Section::className(), 'targetAttribute' => ['id_section' => 'id_section']],
         ];
     }
 
